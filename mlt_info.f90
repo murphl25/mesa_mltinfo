@@ -2355,7 +2355,8 @@
                D_thrm = -thermohaline_coeff*3*K/(2*rho*cp)*gradL_composition_term/diff_grad
 
             else if (thermohaline_option == 'Brown_Garaud_Stellmach_13' .or. &
-                     thermohaline_option == 'Traxler_Garaud_Stellmach_11') then
+                     thermohaline_option == 'Traxler_Garaud_Stellmach_11' .or. &
+                     thermohaline_option == 'Harrington_Garaud_19') then
 
                call get_diff_coeffs(K_T,K_mu,nu)
 
@@ -2370,9 +2371,20 @@
                   ! Traxler, Garaud, & Stellmach, ApJ Letters, 728:L29 (2011).
                   ! also see Denissenkov. ApJ 723:563–579, 2010.
                   D_thrm = 101d0*sqrt(K_mu*nu)*exp_cr(-3.6d0*r_th)*pow_cr(1d0 - r_th,1.1d0) ! eqn 24
-               else !if (thermohaline_option == 'Brown_Garaud_Stellmach_13') then
+               else if (thermohaline_option == 'Brown_Garaud_Stellmach_13') then
                   D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
                   ! evbauer 07/18: changed from K_mu*Numu(R0,r_th,pr,tau), Pascale signed off
+               else
+                 ! if (thermohaline_option == 'Harrington_Garaud_19') then
+                  B0=10d3 !temporary implementation for B0 value, will be inlist option in later development
+                  D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
+                  D_thrm_mag = ((2.*1.24*B0*B0)/((s% rho(k))*4.*pi))/sqrt(R0+1./R0)
+                  !take dominant thermohaline coefficient
+                  if (D_thrm >= D_thrm_mag) then
+                    D_thrm = D_thrm
+                  else
+                    D_thrm = D_thrm_mag
+                  endif
 
                endif
                D_thrm = thermohaline_coeff*D_thrm
