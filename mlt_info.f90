@@ -2339,16 +2339,17 @@
 
          subroutine set_thermohaline
             real(dp) :: kipp_D, tau, Pr, BGS_C, Nu_mu, l2, lmda, phi, r_guess, &
-            sqrt_1_plus_phi, sqrt_Pr, B0, rho_m, K_tc, D_thrm_mag, Nt_sq, Nmu_sq
+            sqrt_1_plus_phi, sqrt_Pr, B0, rho_m, K_tc, D_thrm_mag, Nt_sq, Nmu_sq, grav, H_P
             integer :: ierr
             type (star_info), pointer :: s
+
+            logical, parameter :: dbg = .false.
+            include 'formats'
+
             integer :: k, id
             ierr = 0
             call star_ptr(id, s, ierr)
             if (ierr /= 0) return
-
-            !logical, parameter :: dbg = .false.
-            include 'formats'
 
             if (dbg) write(*,*) 'set_thermohaline ' // trim(thermohaline_option)
 
@@ -2380,25 +2381,27 @@
                else if (thermohaline_option == 'Brown_Garaud_Stellmach_13') then
                   D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
                   ! evbauer 07/18: changed from K_mu*Numu(R0,r_th,pr,tau), Pascale signed off
-               else
-                 ! if (thermohaline_option == 'Harrington_Garaud_19') then
-                  rho_m = s% rho(k)
-                  B0=10d3 !temporary implementation for B0 value, will be inlist option in later development
-                  D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
+                 else
+                  ! if (thermohaline_option == 'Harrington_Garaud_19') then
+                   rho_m = s% rho(k)
+                   grav = s% grav(k)
+                   H_P = s% scale_height(k)
+                   B0=10d3 !temporary implementation for B0 value, will be inlist option in later development
+                   D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
 
-                  Nt_sq = s% gradr(k) - s% grada(k)
-                  Nmu_sq = s% gradL_composition_term(k)
-                  D_thrm_mag = ((2.*1.24*B0*B0)/(rho_m*4.*pi))*sqrt((Nt_sq+Nmu_sq)/(-Nt_sq*Nmu_sq))
+                   Nt_sq = (grav/H_P)*(s% gradr(k) - s% grada(k))
+                   Nmu_sq = (grav/H_P)*(s% gradL_composition_term(k))
+                   D_thrm_mag = ((2.*1.24*B0*B0)/(rho_m*4.*pi))*sqrt((Nt_sq+Nmu_sq)/(-Nt_sq*Nmu_sq))
 
-                  !take dominant thermohaline coefficient
-                  if (D_thrm >= D_thrm_mag) then
-                    D_thrm = D_thrm
-                  else
-                    D_thrm = D_thrm_mag
-                  endif
+                   !take dominant thermohaline coefficient
+                   if (D_thrm >= D_thrm_mag) then
+                     D_thrm = D_thrm
+                   else
+                     D_thrm = D_thrm_mag
+                   endif
 
-               endif
-               D_thrm = thermohaline_coeff*D_thrm
+                endif
+                D_thrm = thermohaline_coeff*D_thrm
 
             else
 
