@@ -2340,12 +2340,12 @@
          subroutine set_thermohaline
             real(dp) :: kipp_D, tau, Pr, BGS_C, Nu_mu, l2, lmda, phi, r_guess, &
             sqrt_1_plus_phi, sqrt_Pr, B0, rho_m, K_tc, D_thrm_mag, Nt_sq, Nmu_sq, grav, H_P
-            integer :: ierr
-            type (star_info), pointer :: s
 
             logical, parameter :: dbg = .false.
             include 'formats'
 
+            integer :: ierr
+            type (star_info), pointer :: s
             integer :: k, id
             ierr = 0
             call star_ptr(id, s, ierr)
@@ -2361,9 +2361,9 @@
                ! Kippenhahn, R., Ruschenplatt, G., & Thomas, H.-C. 1980, A&A, 91, 175
                D_thrm = -thermohaline_coeff*3*K/(2*rho*cp)*gradL_composition_term/diff_grad
 
-            else if (thermohaline_option == 'Brown_Garaud_Stellmach_13' .or. &
-                     thermohaline_option == 'Traxler_Garaud_Stellmach_11' .or. &
-                     thermohaline_option == 'Harrington_Garaud_19') then
+             else if (thermohaline_option == 'Brown_Garaud_Stellmach_13' .or. &
+                      thermohaline_option == 'Traxler_Garaud_Stellmach_11' .or. &
+                      thermohaline_option == 'Harrington_Garaud_19') then
 
                call get_diff_coeffs(K_T,K_mu,nu)
 
@@ -2381,27 +2381,27 @@
                else if (thermohaline_option == 'Brown_Garaud_Stellmach_13') then
                   D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
                   ! evbauer 07/18: changed from K_mu*Numu(R0,r_th,pr,tau), Pascale signed off
+               else
+                 ! if (thermohaline_option == 'Harrington_Garaud_19') then
+                 rho_m = s% rho(k)
+                 grav = s% grav(k)
+                 H_P = s% scale_height(k)
+                 B0=10d3 !temporary implementation for B0 value, will be inlist option in later development
+                 D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
+
+                 Nt_sq = (grav/H_P)*(s% gradr(k) - s% grada(k))
+                 Nmu_sq = (grav/H_P)*(s% gradL_composition_term(k))
+                 D_thrm_mag = ((2.*1.24*B0*B0)/(rho_m*4.*pi))*sqrt((Nt_sq+Nmu_sq)/(-Nt_sq*Nmu_sq))
+
+                 !take dominant thermohaline coefficient
+                 if (D_thrm >= D_thrm_mag) then
+                   D_thrm = D_thrm
                  else
-                  ! if (thermohaline_option == 'Harrington_Garaud_19') then
-                   rho_m = s% rho(k)
-                   grav = s% grav(k)
-                   H_P = s% scale_height(k)
-                   B0=10d3 !temporary implementation for B0 value, will be inlist option in later development
-                   D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
+                   D_thrm = D_thrm_mag
+                 endif
 
-                   Nt_sq = (grav/H_P)*(s% gradr(k) - s% grada(k))
-                   Nmu_sq = (grav/H_P)*(s% gradL_composition_term(k))
-                   D_thrm_mag = ((2.*1.24*B0*B0)/(rho_m*4.*pi))*sqrt((Nt_sq+Nmu_sq)/(-Nt_sq*Nmu_sq))
-
-                   !take dominant thermohaline coefficient
-                   if (D_thrm >= D_thrm_mag) then
-                     D_thrm = D_thrm
-                   else
-                     D_thrm = D_thrm_mag
-                   endif
-
-                endif
-                D_thrm = thermohaline_coeff*D_thrm
+               endif
+               D_thrm = thermohaline_coeff*D_thrm
 
             else
 
@@ -2617,7 +2617,7 @@
 
            !Calculate Nu_mu using Formula (33) from Brown et al, with C = 7.
            numu = 1. + 49.*lambdamax*lambdamax/(diffratio*maxl2*(lambdamax+diffratio*maxl2))
-           !write(*,*) 'end numu, mlt_info'
+
          return
          end function numu
 
@@ -2666,7 +2666,7 @@
          !Inputs analytical estimates for l and lambda from Brown et al. 2013.
 
          real(dp) :: prandtl, diffratio, maxl, lambdamax, r_th, phi, maxl4, maxl6
-         !write(*,*) 'subroutine analytical mlt_info'
+
          phi = diffratio/prandtl
 
          if(r_th .lt. 0.5) then
@@ -2726,7 +2726,7 @@
          !Initialize flags and other counters.
          ierr = 0
          iter = 0
-         err = 0d0!acy*10!0d0
+         err = 0d0
          errold = 0d0
          !Save input guess (probably not necessary here but useful in other routines)
          x1_sav = xrk(1)
@@ -2734,7 +2734,6 @@
 
          !While error is too large .and. decreasing, iterate.
          do while ((err.gt.acy).and.(ierr.eq.0).and.(iter.lt.niter))
-            write(*,*) 'NR loop: iter:',iter
             call thermohaline_rhs(xrk,f,j,prandtl,diffratio,R0)
 
             fact = 'E'
@@ -2772,8 +2771,8 @@
                endif
             endif
          enddo
-         !write(*,*) ''
-         if(iter.eq.niter) write(*,*) 'Failed to converge'
+
+         !if(iter.eq.niter) write(*,2) 'Failed to converge'
          return
          end subroutine NR
 
