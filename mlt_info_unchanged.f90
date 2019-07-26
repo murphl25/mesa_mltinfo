@@ -40,7 +40,7 @@
 
       logical, parameter :: dbg = .false.
       integer, parameter :: kdbg = -1
-      
+
       integer, parameter :: nvbs = num_mlt_partials
 
       contains
@@ -64,7 +64,7 @@
          Cp = -1d0
          grada = -1d0
          P = -1d0
-         xh = -1d0 
+         xh = -1d0
          if (s% doing_timing) call start_time(s, time0, total)
 !$OMP PARALLEL DO PRIVATE(k,op_err) SCHEDULE(guided)
          do k = nzlo, nzhi
@@ -80,7 +80,7 @@
                if (.not. s% fixed_gradr_for_rest_of_newton_iters(k)) &
                   s% fixed_gradr_for_rest_of_newton_iters(k) = &
                      (s% mlt_mixing_type(k) == no_mixing)
-            end if            
+            end if
          end do
 !$OMP END PARALLEL DO
          if (s% doing_timing) call update_time(s, time0, total, s% time_mlt)
@@ -138,20 +138,20 @@
          include 'formats'
 
          ierr = 0
-         if (s% gamma_law_hydro > 0d0) then  
+         if (s% gamma_law_hydro > 0d0) then
             call set_no_MLT_results
             return
          end if
 
          nz = s% nz
-         
+
          if (k < 1 .or. k > nz) then
             write(*,3) 'bad k for do1_mlt', k, nz
             ierr = -1
             return
             stop 'mlt'
          end if
-         
+
          MLT_option = s% MLT_option
 
          mlt_partials1 => mlt_partials1_ary
@@ -225,7 +225,7 @@
          end if
          beta = 1d0 - alfa
          h1 = s% net_iso(ih1)
-         
+
          if (k > 0) then
             d_chiRho_00_dlnd = s% d_eos_dlnd(i_chiRho, k)
             d_chiRho_00_dlnT = s% d_eos_dlnT(i_chiRho, k)
@@ -249,7 +249,7 @@
             d_opacity_00_dlnd = 0d0
             d_opacity_00_dlnT = 0d0
          end if
-         
+
          if (k > 1) then
             d_chiRho_m1_dlnd = s% d_eos_dlnd(i_chiRho, k-1)
             d_chiRho_m1_dlnT = s% d_eos_dlnT(i_chiRho, k-1)
@@ -281,7 +281,7 @@
          grada_face = grada_face_in
          P_face = P_face_in
          xh_face = xh_face_in
-         gradL_composition_term = gradL_composition_term_in      
+         gradL_composition_term = gradL_composition_term_in
          rho_00 = s% rho(k)
          T_00 = s% T(k)
          P_00 = s% P(k)
@@ -292,7 +292,7 @@
          grada_00 = s% grada(k)
 
          if (alfa == 1d0) then
-            
+
             rho_m1 = 0d0
             T_m1 = 0d0
             P_m1 = 0d0
@@ -315,7 +315,7 @@
             s% actual_gradT(k) = 0
 
          else
-         
+
             rho_m1 = s% rho(k-1)
             T_m1 = s% T(k-1)
             P_m1 = s% P(k-1)
@@ -374,12 +374,12 @@
             write(*,*) 'MLT_option ', trim(MLT_option)
             stop 'mlt'
          end if
-         
+
          tau_face = 1d0 ! disable this for now.
 
          if (s% use_porosity_with_dPrad_dm_form) then
             porosity_F = max(s% min_porosity_factor, s% porosity_factor(k))
-            
+
             opacity_face = opacity_face/porosity_F
             opacity_00 = opacity_00/porosity_F
             opacity_m1 = opacity_m1/porosity_F
@@ -397,12 +397,12 @@
                return
             end if
          end if
-         
+
          if (s% lnT_start(k)/ln10 > s% max_logT_for_mlt) then
             call set_no_mixing
             return
          end if
-         
+
          if (s% no_MLT_below_shock) then ! check for outward shock above k
             if (s% u_flag) then
                vel => s% u
@@ -417,7 +417,7 @@
                end if
             end do
          end if
-         
+
          if (s% no_MLT_below_T_max) then
             k_T_max = maxloc(s% T_start(1:nz),dim=1)
             if (k > k_T_max) then
@@ -425,7 +425,7 @@
                return
             end if
          end if
-         
+
          if (s% make_gradr_sticky_in_newton_iters) then
             if (s% fixed_gradr_for_rest_of_newton_iters(k)) then
                call set_no_mixing
@@ -447,7 +447,7 @@
                   cv_old = s% prev_conv_vel_from_file(k)
             end if
          end if
-         
+
          if (T_face >= s% min_T_for_acceleration_limited_conv_velocity &
                .and. T_face <= s% max_T_for_acceleration_limited_conv_velocity &
                .and. cv_old >= 0 .and. .not. s% conv_vel_flag) then
@@ -470,15 +470,15 @@
          end if
 
          if (s% csound_start(k) > 0d0) then
-            if (s% u_flag) then        
+            if (s% u_flag) then
                abs_du_div_cs = 0d0
                if (s% u_start(k)/1e5 > s% max_v_for_convection) then
-                  max_conv_vel = 0d0              
+                  max_conv_vel = 0d0
                else if (s% q(k) > s% max_q_for_convection_with_hydro_on) then
                   max_conv_vel = 0d0
                else if ((abs(s% u_start(k))) >= &
                      s% csound_start(k)*s% max_v_div_cs_for_convection) then
-                  max_conv_vel = 0d0              
+                  max_conv_vel = 0d0
                else
                   if (k == 1) then
                      abs_du_div_cs = 1d99
@@ -493,7 +493,7 @@
                end if
             else if (s% v_flag) then
                if (s% v_start(k)/1e5 > s% max_v_for_convection) then
-                  max_conv_vel = 0d0              
+                  max_conv_vel = 0d0
                else if (s% q(k) > s% max_q_for_convection_with_hydro_on) then
                   max_conv_vel = 0d0
                else if ((abs(s% v_start(k))) >= &
@@ -530,10 +530,10 @@
          end if
 
          call do1_mlt_eval(s, k, &
-            s% cgrav(k), m, mstar, r, L, xh_face, &            
+            s% cgrav(k), m, mstar, r, L, xh_face, &
             T_face, rho_face, P_face, &
             chiRho_face, chiT_face, &
-            Cp_face, opacity_face, grada_face, &            
+            Cp_face, opacity_face, grada_face, &
             alfa, beta, d_alfa_dq00, d_alfa_dqm1, d_alfa_dqp1, & ! f_face = alfa*f_00 + beta*f_m1
             T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
             chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -545,7 +545,7 @@
             opacity_00, d_opacity_00_dlnd, d_opacity_00_dlnT, &
             opacity_m1, d_opacity_m1_dlnd, d_opacity_m1_dlnT, &
             grada_00, d_grada_00_dlnd, d_grada_00_dlnT, &
-            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &            
+            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &
             gradr_factor, gradL_composition_term, &
             asc, s% semiconvection_option, thc, s% thermohaline_option, &
             s% dominant_iso_for_thermohaline(k), &
@@ -560,7 +560,7 @@
 !$OMP critical
                write(*,*) 'ierr in do1_mlt_eval for k', k
                call show_stuff(.true.)
-               stop 
+               stop
 !$OMP end critical
             end if
             return
@@ -610,7 +610,7 @@
             s% d_conv_dP_term_dlnTm1(k) = mlt_partials(mlt_dlnTm1, mlt_conv_dP_term)
          end if
 
-         s% gradT(k) = mlt_basics(mlt_gradT)         
+         s% gradT(k) = mlt_basics(mlt_gradT)
          s% d_gradT_dlnR(k) = mlt_partials(mlt_dlnR, mlt_gradT)
          s% d_gradT_dL(k) = mlt_partials(mlt_dL, mlt_gradT)
          s% d_gradT_dln_cvpv0(k) = mlt_partials(mlt_cv_var, mlt_gradT)
@@ -621,8 +621,8 @@
             write(*,2) 's% d_gradT_dln_cvpv0(k)', k, s% d_gradT_dln_cvpv0(k)
             stop 'mlt_info'
          end if
-         s% d_gradT_dlnd00(k) = mlt_partials(mlt_dlnd00, mlt_gradT)  
-         s% d_gradT_dlnT00(k) = mlt_partials(mlt_dlnT00, mlt_gradT) 
+         s% d_gradT_dlnd00(k) = mlt_partials(mlt_dlnd00, mlt_gradT)
+         s% d_gradT_dlnT00(k) = mlt_partials(mlt_dlnT00, mlt_gradT)
          if (k == 1) then
             s% d_gradT_dlndm1(k) = 0d0
             s% d_gradT_dlnTm1(k) = 0d0
@@ -636,11 +636,11 @@
             s% d_gradT_dqp1(k) = mlt_partials(mlt_dqp1, mlt_gradT)
          end if
 
-         s% mlt_vc(k) = mlt_basics(mlt_convection_velocity)     
+         s% mlt_vc(k) = mlt_basics(mlt_convection_velocity)
          s% d_mlt_vc_dlnR(k) = mlt_partials(mlt_dlnR, mlt_convection_velocity)
          s% d_mlt_vc_dL(k) = mlt_partials(mlt_dL, mlt_convection_velocity)
-         s% d_mlt_vc_dlnd00(k) = mlt_partials(mlt_dlnd00, mlt_convection_velocity)  
-         s% d_mlt_vc_dlnT00(k) = mlt_partials(mlt_dlnT00, mlt_convection_velocity) 
+         s% d_mlt_vc_dlnd00(k) = mlt_partials(mlt_dlnd00, mlt_convection_velocity)
+         s% d_mlt_vc_dlnT00(k) = mlt_partials(mlt_dlnT00, mlt_convection_velocity)
          if (k == 1) then
             s% d_mlt_vc_dlndm1(k) = 0d0
             s% d_mlt_vc_dlnTm1(k) = 0d0
@@ -674,7 +674,7 @@
          else
             s% L_conv(k) = 0d0
          end if
-         
+
          if (k == 1 .or. mlt_option == 'none') then
             s% grad_superad(k) = 0d0
          else
@@ -707,14 +707,14 @@
             ierr = -1
             return
          end if
-         
+
          !if (k == 100) then
          !   call show_stuff(.true.)
          !   stop 'mlt'
          !end if
-         
+
          !if (k == 738) write(*,4) 'gradT', k, s% newton_iter, mixing_type, s% gradT(k)
-         
+
          !if (.false. .and. k == s% hydro_test_partials_k .and. &
          !      s% newton_iter == s% hydro_dump_iter_number) then
          !   call show_stuff(.true.)
@@ -722,7 +722,7 @@
          !end if
 
          contains
-         
+
          subroutine get_mlt_eval_gradr_info(ierr)
             !use mlt_lib, only: mlt_eval_gradr_info
             integer, intent(out) :: ierr
@@ -730,10 +730,10 @@
             include 'formats'
 
             call do1_mlt_eval(s, k, &
-               s% cgrav(k), m, mstar, r, L, xh_face, &            
+               s% cgrav(k), m, mstar, r, L, xh_face, &
                T_face, rho_face, P_face, &
                chiRho_face, chiT_face, &
-               Cp_face, opacity_face, grada_face, &            
+               Cp_face, opacity_face, grada_face, &
                alfa, beta, d_alfa_dq00, d_alfa_dqm1, d_alfa_dqp1, & ! f_face = alfa*f_00 + beta*f_m1
                T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
                chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -745,7 +745,7 @@
                opacity_00, d_opacity_00_dlnd, d_opacity_00_dlnT, &
                opacity_m1, d_opacity_m1_dlnd, d_opacity_m1_dlnT, &
                grada_00, d_grada_00_dlnd, d_grada_00_dlnT, &
-               grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &            
+               grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &
                gradr_factor, gradL_composition_term, &
                asc, s% semiconvection_option, thc, s% thermohaline_option, &
                s% dominant_iso_for_thermohaline(k), &
@@ -774,10 +774,10 @@
                write(*,2) 'rho_face', k, rho_face
                stop 'get_mlt_eval_gradr_info'
 !$OMP end critical
-            end if 
+            end if
          end subroutine get_mlt_eval_gradr_info
 
-         
+
          subroutine store_gradr_partials
             s% d_gradr_dlnR(k) = mlt_partials(mlt_dlnR, mlt_gradr)
             s% d_gradr_dL(k) = mlt_partials(mlt_dL, mlt_gradr)
@@ -1601,10 +1601,10 @@
 
 
       subroutine do1_mlt_eval(s, k, &
-            cgrav, m, mstar, r, L, X, &            
+            cgrav, m, mstar, r, L, X, &
             T_face, rho_face, P_face, &
             chiRho_face, chiT_face, &
-            Cp_face, opacity_face, grada_face, &            
+            Cp_face, opacity_face, grada_face, &
             alfa, beta, d_alfa_dq00, d_alfa_dqm1, d_alfa_dqp1, & ! f_face = alfa*f_00 + beta*f_m1
             T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
             chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -1616,7 +1616,7 @@
             opacity_00, d_opacity_00_dlnd, d_opacity_00_dlnT, &
             opacity_m1, d_opacity_m1_dlnd, d_opacity_m1_dlnT, &
             grada_00, d_grada_00_dlnd, d_grada_00_dlnT, &
-            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &            
+            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &
             gradr_factor, gradL_composition_term, &
             alpha_semiconvection, semiconvection_option, &
             thermohaline_coeff, thermohaline_option, &
@@ -1631,10 +1631,10 @@
          type (star_info), pointer :: s
          integer, intent(in) :: k
          real(dp), intent(in) :: &
-            cgrav, m, mstar, r, L, X, &            
+            cgrav, m, mstar, r, L, X, &
             T_face, rho_face, P_face, &
             chiRho_face, chiT_face, &
-            Cp_face, opacity_face, grada_face, &            
+            Cp_face, opacity_face, grada_face, &
             alfa, beta, d_alfa_dq00, d_alfa_dqm1, d_alfa_dqp1, &
             T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
             chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -1661,16 +1661,16 @@
          real(dp), intent(inout) :: mlt_basics(:) ! (num_mlt_results)
          real(dp), intent(inout), pointer :: mlt_partials1(:) ! =(num_mlt_partials, num_mlt_results)
          integer, intent(out) :: ierr
-         
+
          real(dp), pointer :: mlt_partials(:,:)
          include 'formats'
 
          if (s% use_other_mlt) then
             call s% other_mlt(  &
-               s% id, k, cgrav, m, mstar, r, L, X, &            
+               s% id, k, cgrav, m, mstar, r, L, X, &
                T_face, rho_face, P_face, &
                chiRho_face, chiT_face, &
-               Cp_face, opacity_face, grada_face, &            
+               Cp_face, opacity_face, grada_face, &
                alfa, beta, d_alfa_dq00, d_alfa_dqm1, d_alfa_dqp1, & ! f_face = alfa*f_00 + beta*f_m1
                T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
                chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -1682,7 +1682,7 @@
                opacity_00, d_opacity_00_dlnd, d_opacity_00_dlnT, &
                opacity_m1, d_opacity_m1_dlnd, d_opacity_m1_dlnT, &
                grada_00, d_grada_00_dlnd, d_grada_00_dlnT, &
-               grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &            
+               grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &
                gradr_factor, gradL_composition_term, &
                alpha_semiconvection, semiconvection_option, &
                thermohaline_coeff, thermohaline_option, &
@@ -1695,18 +1695,18 @@
                mixing_type, mlt_basics, mlt_partials1, ierr)
             return
          end if
-         
+
          mlt_partials(1:num_mlt_partials,1:num_mlt_results) => &
             mlt_partials1(1:num_mlt_partials*num_mlt_results)
-         
+
          ierr = 0
          mlt_basics = 0
          mlt_partials = 0
          call Get_results(s, k, &
-            cgrav, m, mstar, r, L, X, &            
+            cgrav, m, mstar, r, L, X, &
             T_face, rho_face, P_face, &
             chiRho_face, chiT_face, &
-            Cp_face, opacity_face, grada_face, &            
+            Cp_face, opacity_face, grada_face, &
             alfa, beta, d_alfa_dq00, d_alfa_dqm1, d_alfa_dqp1, & ! f_face = alfa*f_00 + beta*f_m1
             T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
             chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -1718,7 +1718,7 @@
             opacity_00, d_opacity_00_dlnd, d_opacity_00_dlnT, &
             opacity_m1, d_opacity_m1_dlnd, d_opacity_m1_dlnT, &
             grada_00, d_grada_00_dlnd, d_grada_00_dlnT, &
-            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &            
+            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &
             gradr_factor, gradL_composition_term, &
             alpha_semiconvection, semiconvection_option, &
             thermohaline_coeff, thermohaline_option, &
@@ -1745,19 +1745,19 @@
          if (mlt_basics(mlt_D) < 0) then
             !stop 'do1_mlt_eval: mlt_basics(mlt_D) < 0'
          end if
-         
+
          if (is_bad(mlt_partials(mlt_cv_var,mlt_gradT))) then
             write(*,2) 'mlt_partials(mlt_cv_var,mlt_gradT)', k, mlt_partials(mlt_cv_var,mlt_gradT)
             ierr = -1
             !stop 'do1_mlt_eval'
          end if
-         
+
       end subroutine do1_mlt_eval
-      
+
 
       subroutine Get_results(ss, kz, &
-            cgrav, m, mstar, r, L, xh, &            
-            T, rho, P, chiRho, chiT, Cp, opacity, grada, &            
+            cgrav, m, mstar, r, L, xh, &
+            T, rho, P, chiRho, chiT, Cp, opacity, grada, &
             a_00, a_m1, d_a_00_dq00, d_a_00_dqm1, d_a_00_dqp1, &
             T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
             chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -1769,7 +1769,7 @@
             opacity_00, d_opacity_00_dlnd, d_opacity_00_dlnT, &
             opacity_m1, d_opacity_m1_dlnd, d_opacity_m1_dlnT, &
             grada_00, d_grada_00_dlnd, d_grada_00_dlnT, &
-            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &            
+            grada_m1, d_grada_m1_dlnd, d_grada_m1_dlnT, &
             gradr_factor, gradL_composition_term, &
             alpha_semiconvection, semiconvection_option, &
             thermohaline_coeff, thermohaline_option, &
@@ -1795,12 +1795,12 @@
 
          use utils_lib, only: is_bad
          use chem_def, only: chem_isos
-         
+
          type (star_info), pointer :: ss
          integer, intent(in) :: kz
          real(dp), intent(in) :: &
-            cgrav, m, mstar, r, L, xh, &            
-            T, rho, P, chiRho, chiT, Cp, opacity, grada, &            
+            cgrav, m, mstar, r, L, xh, &
+            T, rho, P, chiRho, chiT, Cp, opacity, grada, &
             a_00, a_m1, d_a_00_dq00, d_a_00_dqm1, d_a_00_dqp1, &
             T_00, T_m1, rho_00, rho_m1, P_00, P_m1, &
             chiRho_00, d_chiRho_00_dlnd, d_chiRho_00_dlnT, &
@@ -1823,7 +1823,7 @@
          character (len=*), intent(in) :: thermohaline_option, MLT_option, semiconvection_option
          integer, intent(in) :: dominant_iso_for_thermohaline
          logical, intent(in) :: smooth_gradT, just_gradr
-         
+
          integer, intent(out) :: mixing_type
          real(dp), intent(inout) :: gradT, d_gradT_dvb(:)
          real(dp), intent(inout) :: gradr, d_gradr_dvb(:)
@@ -1835,13 +1835,13 @@
          real(dp), intent(inout) :: Gamma, d_Gamma_dvb(:) ! convective efficiency
          real(dp), intent(inout) :: conv_P, d_conv_P_dvb(:)
          real(dp), intent(inout) :: unsmoothed_gradT, d_unsmoothed_gradT_dvb(:)
-         
+
          integer, intent(out) :: ierr
 
          real(dp) :: scale_height1, scale_height2
          real(dp) :: Pg, Pr, dP_dvb(nvbs), dPg_dvb(nvbs), dPr_dvb(nvbs), dRho_dvb(nvbs)
          real(dp) :: dT_dvb(nvbs), dL_dvb(nvbs), alpha, phi, dgrad, denom, tmp
-         
+
          real(dp) :: grav, d_grav_dvb(nvbs)
          real(dp) :: diff_grads, d_diff_grads_dvb(nvbs)
          real(dp) :: convective_conductivity, d_cc_dvb(nvbs)
@@ -1869,10 +1869,10 @@
 
          real(dp) :: a0, omega, theta, s_gradr, f_gradr, dilute_factor
          real(dp) :: d_omega_dvb(nvbs), d_a0_dvb(nvbs), d_theta_dvb(nvbs)
-         
+
          integer :: i
          real(dp), parameter :: tiny = 1d-30, min_D_th = 1d-3
-         character (len=256) :: message        
+         character (len=256) :: message
          logical ::  quit
          real(dp) :: diff_grad, K, gamma0, L_ratio, frac, s, &
             dilution_factor, conv_tau, init_conv_vel
@@ -1880,71 +1880,71 @@
 
          real(dp) :: scale_factor, interp_factor, dinterp_factor
          real(dp) :: gradT_temp, d_gradT_temp_dvb(nvbs)
-         
+
          logical :: test_partials, debug
 
          include 'formats.dek'
 
          !test_partials = (kz == ss% hydro_test_partials_k)
          test_partials = .false.
-      
+
          ierr = 0
          gradT_temp = 0
          debug = .false.
-         
+
          dL_dvb(:) = 0d0
          dL_dvb(mlt_dL) = 1d0
-         
+
          dR_dvb(:) = 0d0
          dR_dvb(mlt_dlnR) = r
-         
+
          call set1_dvb(dT_dvb, &
             0d0, a_00*T_00, 0d0, a_m1*T_m1, &
             d_a_00_dq00*(T_00-T_m1), &
             d_a_00_dqm1*(T_00-T_m1), &
             d_a_00_dqp1*(T_00-T_m1))
-            
+
          call set1_dvb(dRho_dvb, &
             a_00*rho_00, 0d0, a_m1*rho_m1, 0d0, &
             d_a_00_dq00*(rho_00-rho_m1), &
             d_a_00_dqm1*(rho_00-rho_m1), &
             d_a_00_dqp1*(rho_00-rho_m1))
-            
+
          call set1_dvb(dP_dvb, &
             a_00*P_00*chiRho_00, a_00*P_00*chiT_00, &
             a_m1*P_m1*chiRho_m1, a_m1*P_m1*chiT_m1, &
             d_a_00_dq00*(P_00-P_m1), &
             d_a_00_dqm1*(P_00-P_m1), &
             d_a_00_dqp1*(P_00-P_m1))
-            
+
          call set1_dvb(d_chiT_dvb, &
             a_00*d_chiT_00_dlnd, a_00*d_chiT_00_dlnT, &
             a_m1*d_chiT_m1_dlnd, a_m1*d_chiT_m1_dlnT, &
             d_a_00_dq00*(chiT_00-chiT_m1), &
             d_a_00_dqm1*(chiT_00-chiT_m1), &
             d_a_00_dqp1*(chiT_00-chiT_m1))
-            
+
          call set1_dvb(d_chiRho_dvb, &
             a_00*d_chiRho_00_dlnd, a_00*d_chiRho_00_dlnT, &
             a_m1*d_chiRho_m1_dlnd, a_m1*d_chiRho_m1_dlnT, &
             d_a_00_dq00*(chiRho_00-chiRho_m1), &
             d_a_00_dqm1*(chiRho_00-chiRho_m1), &
             d_a_00_dqp1*(chiRho_00-chiRho_m1))
-            
+
          call set1_dvb(d_Cp_dvb, &
             a_00*d_Cp_00_dlnd, a_00*d_Cp_00_dlnT, &
             a_m1*d_Cp_m1_dlnd, a_m1*d_Cp_m1_dlnT, &
             d_a_00_dq00*(Cp_00-Cp_m1), &
             d_a_00_dqm1*(Cp_00-Cp_m1), &
             d_a_00_dqp1*(Cp_00-Cp_m1))
-            
+
          call set1_dvb(d_opacity_dvb, &
             a_00*d_opacity_00_dlnd, a_00*d_opacity_00_dlnT, &
             a_m1*d_opacity_m1_dlnd, a_m1*d_opacity_m1_dlnT, &
             d_a_00_dq00*(opacity_00-opacity_m1), &
             d_a_00_dqm1*(opacity_00-opacity_m1), &
             d_a_00_dqp1*(opacity_00-opacity_m1))
-            
+
          call set1_dvb(d_grada_dvb, &
             a_00*d_grada_00_dlnd, a_00*d_grada_00_dlnT, &
             a_m1*d_grada_m1_dlnd, a_m1*d_grada_m1_dlnT, &
@@ -1977,7 +1977,7 @@
             4d0*Pr/T*d_a_00_dq00*(T_00-T_m1), &
             4d0*Pr/T*d_a_00_dqm1*(T_00-T_m1), &
             4d0*Pr/T*d_a_00_dqp1*(T_00-T_m1))
-         
+
          !gradr = eval_Paczynski_gradr(P,opacity,L,m,cgrav,Pr,tau,T,r,rho)
          gradr = P*opacity*L / (16*pi*clight*m*cgrav*Pr)
          if (tau < 2d0/3d0) then ! B. Paczynski, 1969, Acta Astr., vol. 19, 1., eqn 14.
@@ -1989,7 +1989,7 @@
          gradr = gradr*gradr_factor
          d_gradr_dvb = gradr*(dP_dvb/P + d_opacity_dvb/opacity - dPr_dvb/Pr)
          d_gradr_dvb(mlt_dL) = gradr_factor*P*opacity / (16*pi*clight*m*cgrav*Pr)
-         
+
          if (is_bad(gradr)) then
             ierr = -1
             if (.not. ss% report_ierr) return
@@ -2004,18 +2004,18 @@
             write(*,2) 'P*opacity*L', kz, P*opacity*L
             write(*,2) 'gradr_factor', kz, gradr_factor
             write(*,2) 'tau', kz, tau
-            !write(*,2) '', kz, 
+            !write(*,2) '', kz,
             stop 'mlt'
 !$OMP end critical
          end if
-         
+
          if (just_gradr) return
 
          grav = cgrav*m / (r*r)
          d_grav_dvb = 0d0
          d_grav_dvb(mlt_dlnR) = -2*grav
          d_grav_dvb(mlt_dq00) = grav*mstar/m
-         
+
          if (grav < 0) then
             write(*,1) 'grav', grav
             write(*,1) 'cgrav', cgrav
@@ -2055,15 +2055,15 @@
 !$OMP end critical
             return
          end if
-         
+
          surf = pi4*r*r
          if (debug) write(*,1) 'surf', surf
          dsurf_dvb = 8*pi*r*dR_dvb
-         
+
          ! Ledoux temperature gradient (same as Schwarzschild if composition term = 0)
          gradL = grada + gradL_composition_term
          d_gradL_dvb = d_grada_dvb ! ignore partials of composition term
-         
+
          diff_grads = gradr - gradL ! convective if this is > 0
          d_diff_grads_dvb = d_gradr_dvb - d_gradL_dvb
          if (is_bad(d_diff_grads_dvb(mlt_dlnT00))) then
@@ -2084,30 +2084,30 @@
             call set_no_mixing
             return
          end if
-         
+
          dPg_dvb = dP_dvb - dPr_dvb
 
          beta = Pg / P
          if (debug) write(*,1) 'beta', beta
          d_beta_dvb = beta*(dPg_dvb/Pg - dP_dvb/P)
-         
+
          if (debug) write(*,1) 'scale_height', scale_height
 
          ! mixing length, Lambda
          Lambda = mixing_length_alpha*scale_height
          if (debug) write(*,1) 'Lambda', Lambda
          d_Lambda_dvb = mixing_length_alpha*d_scale_height_dvb
-                  
+
          if (mixing_length_alpha <= 0) then
             call set_no_mixing
             return
          end if
-         
+
          if (MLT_option == 'none') then
             call set_no_mixing
             return
          end if
-         
+
          if (opacity < 1d-10 .or. P < 1d-20 .or. T < 1d-10 .or. Rho < 1d-20 &
                .or. m < 1d-10 .or. r < 1d-10 .or. cgrav < 1d-10 .or. &
                max_conv_vel == 0d0) then
@@ -2120,8 +2120,8 @@
                write(*,*) 'm < 1d-10', m < 1d-10
                write(*,*) 'r < 1d-10', r < 1d-10
                write(*,*) 'cgrav < 1d-10', cgrav < 1d-10
-               write(*,*) 'max_conv_vel == 0d0', max_conv_vel == 0d0       
-               write(*,*) "MLT_option == 'none' ", MLT_option == 'none'      
+               write(*,*) 'max_conv_vel == 0d0', max_conv_vel == 0d0
+               write(*,*) "MLT_option == 'none' ", MLT_option == 'none'
                stop 'mlt'
             end if
             call set_no_mixing
@@ -2135,7 +2135,7 @@
             call set_no_mixing
             return
          end if
-                     
+
          radiative_conductivity = (4*crad*clight/3)*T*T*T / (opacity*rho) ! erg / (K cm sec)
          if (debug) write(*,1) 'radiative_conductivity', radiative_conductivity
          d_rc_dvb = radiative_conductivity*(3d0*dT_dvb/T - dRho_dvb/rho - d_opacity_dvb/opacity)
@@ -2149,9 +2149,9 @@
             d_gradT_temp_dvb = d_gradT_dvb
             diff_grads = diff_grads + gradT_smooth_low
          end if
-         
-         if (diff_grads <= 0d0) then ! not convective (Ledoux stable)    
-            call set_no_mixing ! also sets gradT = gradr    
+
+         if (diff_grads <= 0d0) then ! not convective (Ledoux stable)
+            call set_no_mixing ! also sets gradT = gradr
             if (gradL_composition_term < 0) then ! composition unstable
                call set_thermohaline
                D = D_thrm
@@ -2225,13 +2225,13 @@
                      mixing_type = softened_convective_mixing
                end if
             end if
-            return            
+            return
          end if
-         
+
          call set_convective_mixing
          call set_conv_P
          if (quit) return
-         
+
          D = conv_vel*Lambda/3     ! diffusion coefficient [cm^2/sec]
          if (debug) write(*,1) 'D', D
          d_D_dvb = (d_conv_vel_dvb*Lambda + conv_vel*d_Lambda_dvb)/3
@@ -2260,7 +2260,7 @@
                !conv_P = interp_factor * conv_P
             end if
          end if
-         
+
          if (debug .or. D < 0) then
             write(*,*) 'get_gradT: convective_mixing'
             write(*,1) 'D', D
@@ -2307,10 +2307,10 @@
                end if
             end if
          end if
-         
+
          contains
 
-         
+
          subroutine set1_dvb(dvb, dlnd00, dlnT00, dlndm1, dlndTm1, dq00, dqm1, dqp1)
             real(dp), intent(inout) :: dvb(nvbs)
             real(dp), intent(in) :: dlnd00, dlnT00, dlndm1, dlndTm1, dq00, dqm1, dqp1
@@ -2325,7 +2325,7 @@
             dvb(mlt_dqm1) = dqm1
             dvb(mlt_dqp1) = dqp1
          end subroutine set1_dvb
-         
+
          subroutine set_conv_P
             if (conv_vel == 0d0) then
                conv_P = 0d0
@@ -2336,27 +2336,27 @@
                   dRho_dvb*conv_vel*conv_vel/(3*P) - conv_P*dP_dvb/P
             end if
          end subroutine set_conv_P
-         
+
          subroutine set_thermohaline
             real(dp) :: kipp_D, tau, Pr, BGS_C, Nu_mu, l2, lmda, phi, r_guess, &
             sqrt_1_plus_phi, sqrt_Pr
-   
+
             logical, parameter :: dbg = .false.
             include 'formats'
-                        
+
             if (dbg) write(*,*) 'set_thermohaline ' // trim(thermohaline_option)
-            
-            diff_grad = max(1d-40, grada - gradr) ! positive since Schwarzschild stable               
+
+            diff_grad = max(1d-40, grada - gradr) ! positive since Schwarzschild stable
             K = 4*crad*clight*T*T*T/(3*opacity*rho) ! thermal conductivity
-            
+
             if (thermohaline_option == 'Kippenhahn') then
-            
+
                ! Kippenhahn, R., Ruschenplatt, G., & Thomas, H.-C. 1980, A&A, 91, 175
                D_thrm = -thermohaline_coeff*3*K/(2*rho*cp)*gradL_composition_term/diff_grad
-            
+
             else if (thermohaline_option == 'Brown_Garaud_Stellmach_13' .or. &
                      thermohaline_option == 'Traxler_Garaud_Stellmach_11') then
-                     
+
                call get_diff_coeffs(K_T,K_mu,nu)
 
                R0 = (gradr - grada)/gradL_composition_term
@@ -2366,43 +2366,43 @@
 
                if (r_th >= 1d0) then ! stable if R0 >= 1/tau
                   D_thrm = 0d0
-               else if (thermohaline_option == 'Traxler_Garaud_Stellmach_11') then 
+               else if (thermohaline_option == 'Traxler_Garaud_Stellmach_11') then
                   ! Traxler, Garaud, & Stellmach, ApJ Letters, 728:L29 (2011).
                   ! also see Denissenkov. ApJ 723:563–579, 2010.
                   D_thrm = 101d0*sqrt(K_mu*nu)*exp_cr(-3.6d0*r_th)*pow_cr(1d0 - r_th,1.1d0) ! eqn 24
-               else             
+               else
                   ! if (thermohaline_option == 'Brown_Garaud_Stellmach_13') then
                   D_thrm = K_mu*(Numu(R0,r_th,pr,tau) - 1d0)
                   ! evbauer 07/18: changed from K_mu*Numu(R0,r_th,pr,tau), Pascale signed off
                endif
                D_thrm = thermohaline_coeff*D_thrm
-               
+
             else
-                 
+
                D_thrm = 0
                ierr = -1
                write(*,*) 'unknown value for MLT thermohaline_option' // trim(thermohaline_option)
-               return   
-               
+               return
+
             end if
-            
+
             conv_vel = 3*D_thrm/Lambda
             d_conv_vel_dvb = 0
             d_D_thrm_dvb = 0
-            
+
             call time_limit_conv_vel
             if (conv_vel > max_conv_vel) conv_vel = max_conv_vel
             if (init_conv_vel /= conv_vel) D_thrm = conv_vel*Lambda/3
-            
+
             if (D_thrm < min_D_th .or. D_thrm <= 0) then
                call set_no_mixing
                return
             end if
-            
-            mixing_type = thermohaline_mixing 
-            
+
+            mixing_type = thermohaline_mixing
+
          end subroutine set_thermohaline
-         
+
          subroutine time_limit_conv_vel
             real(dp), dimension(nvbs) :: d_vconv_accel_dvb, d_brunt_timescale_dvb
             real(dp), dimension(nvbs) :: d_diff_grads_s_dvb
@@ -2425,7 +2425,7 @@
                else
                   !reduce convective velocity as needed
                   new_conv_vel = prev_conv_vel - dt*grav*g_theta
-                  if (new_conv_vel > conv_vel) then 
+                  if (new_conv_vel > conv_vel) then
                      conv_vel = new_conv_vel
                      d_conv_vel_dvb = -dt*d_grav_dvb*g_theta
                   end if
@@ -2498,18 +2498,18 @@
          real(dp) :: kt,kmu,vis,qe4
          real(dp) :: loglambdah,loglambdacx,loglambdacy,ccx,ccy
          real(dp) :: Bcoeff
-         real(dp) :: chemA,chemZ,acx,acy       
+         real(dp) :: chemA,chemZ,acx,acy
          real(dp), parameter :: sqrt5 = sqrt(5d0)
-                 
+
          kt = K/(Cp*rho)       ! thermal diffusivity (assumes radiatively dominated)
          qe4=qe*qe*qe*qe
-         
+
          ! Log Lambda for pure H (equation 10 from Proffitt Michaud 93)
-         loglambdah = -19.26 - 0.5*log_cr(rho) + 1.5*log_cr(T) - 0.5*log_cr(1. + 0.5*(1+xh)) 
+         loglambdah = -19.26 - 0.5*log_cr(rho) + 1.5*log_cr(T) - 0.5*log_cr(1. + 0.5*(1+xh))
          nu_rad = 4*crad*T*T*T*T/(15*clight*opacity*rho*rho) ! radiative viscosity
-         nu_mol = 0.406*sqrt(amu)*pow_cr(boltzm*T,2.5d0)/(qe4*loglambdah*rho) 
+         nu_mol = 0.406*sqrt(amu)*pow_cr(boltzm*T,2.5d0)/(qe4*loglambdah*rho)
          ! From Spitzer "Physics of Fully Ionized Gases equation 5-54
-         ! Assumes pure H. Still trying to work out what it would be for a mixture. 
+         ! Assumes pure H. Still trying to work out what it would be for a mixture.
          vis = nu_mol + nu_rad   ! total viscosity
 
          ! The following is from Proffitt & Michaud, 1993.
@@ -2522,7 +2522,7 @@
          if(chemZ.gt.2) then
          ! This is if the driving chemical is NOT He.
             ! Log Lambda for H-dominant chem mixture (equation 10)
-            loglambdacx = loglambdah - log_cr(chemz)  
+            loglambdacx = loglambdah - log_cr(chemz)
             ! Log Lambda for He-dominant chem mixture (equation 10)
             loglambdacy = loglambdah - log_cr(2.*chemz)
             ! Calculation of C_ij coeffs (equation 12)
@@ -2538,12 +2538,12 @@
          else
             ! Log Lambda for H-He mixture (equation 10)
             loglambdah = -19.26 - log_cr(2.d0) - 0.5*log_cr(rho) + &
-               1.5*log_cr(T) - 0.5*log_cr(1. + 0.5*(1+xh)) 
+               1.5*log_cr(T) - 0.5*log_cr(1. + 0.5*(1+xh))
             ! Calculation of C_ij coeffs (equation 12)
             ccy = log_cr(exp_cr(1.2*loglambdah)+1.)/1.2
             ! My formula (see notes) based on Proffitt and Michaud 1993
             kmu = (Bcoeff*pow_cr(T,2.5d0)/(rho*ccy))*(3+xh)/((1+xh)*(3+5*xh)*(0.7+0.3*xh))
-            
+
          endif
          ! write(57,*) kt,kmu,vis,chemZ
 
@@ -2551,7 +2551,7 @@
 
          double precision function numu(R0,r_th,prandtl,diffratio)
          !Function calculates Nu_mu from input parameters, following Brown et al. 2013.
-         !Written by P. Garaud (2013). Please email pgaraud@ucsc.edu for troubleshooting. 
+         !Written by P. Garaud (2013). Please email pgaraud@ucsc.edu for troubleshooting.
 
             real(dp), intent(in) :: R0,r_th,prandtl,diffratio
             real(dp) :: maxl2,maxl,lambdamax
@@ -2560,17 +2560,17 @@
 
             ! Initialize guess using estimates from Brown et al. 2013
             call analytical_estimate_th(maxl,lambdamax,r_th,prandtl,diffratio)
-                  
+
             myvars(1) = maxl
             myvars(2) = lambdamax
 
            !Call Newton relaxation algorithm
            call NR(myvars,prandtl,diffratio,R0,ierr)
-          
-           !If the growth rate is negative, then try another set of parameters as first guess.  
+
+           !If the growth rate is negative, then try another set of parameters as first guess.
            !Repeat as many times as necessary until convergence is obtained.
            iter = 1
-           do while((myvars(2)<0).or.(ierr /= 0)) 
+           do while((myvars(2)<0).or.(ierr /= 0))
               !write(*,*) 'Alternative', r_th,prandtl,diffratio,iter
            !Reset guess values
               myvars(1) = maxl
@@ -2581,19 +2581,19 @@
               if(ierr.eq.0) call NR(myvars,prandtl,diffratio,R0,ierr)
               !write(*,*) prandtl,diffratio,R0,myvars(1),myvars(2),ierr
               !Otherwise, increase counter and try again.
-              iter = iter + 1            
+              iter = iter + 1
            enddo
 
            !Plug solution into "l^2" and lambda.
            maxl2 = myvars(1)*myvars(1)
-           lambdamax = myvars(2) 
+           lambdamax = myvars(2)
            !write(*,*) prandtl,diffratio,r_th,maxl2,lambdamax
 
            !Calculate Nu_mu using Formula (33) from Brown et al, with C = 7.
            numu = 1. + 49.*lambdamax*lambdamax/(diffratio*maxl2*(lambdamax+diffratio*maxl2))
-
+           !write(*,*) 'end numu, mlt_info'
          return
-         end function numu 
+         end function numu
 
          subroutine thermohaline_rhs(myx,myf,myj,prandtl,diffratio,R0)
          ! This routine is needed for the NR solver.
@@ -2601,12 +2601,12 @@
          ! lambda^3 + a_2 lambda^2 + a_1 lambda + a_0 = 0 (eq. 19 of Brown et al.)
          ! b_2 lambda^2 + b_1 lambda + b_0 = 0 (eq. 20 of Brown et al.)
          ! Inputs f, the equations, and j, their jacobian.
-         ! Written by P. Garaud (2013). Please email pgaraud@ucsc.edu for troubleshooting. 
+         ! Written by P. Garaud (2013). Please email pgaraud@ucsc.edu for troubleshooting.
 
          real(dp), intent(in) :: myx(2),  prandtl, diffratio, R0
          real(dp), intent(out) :: myf(2), myj(2,2)
          real(dp) :: a_2,a_1,a_0,b_2,b_1,b_0,myterm,myx1_2,myx1_3,myx1_4
- 
+
          !This inputs the coefficients.
          b_2 = 1.+prandtl+diffratio
          myx1_2 = myx(1)*myx(1)
@@ -2624,7 +2624,7 @@
          !These are equations 19 and 20
          myf(1) = ((myx(2) + a_2)*myx(2) + a_1)*myx(2) + a_0
          myf(2) = b_2*myx(2)*myx(2) + b_1*myx(2) + b_0
-         
+
          !These are their Jacobians for the NR relaxation.
          myj(1,1) = 2*myx(1)*b_2*myx(2)*myx(2) + &
             4*myx1_3*myterm*myx(2) + 6*myx1_4*myx(1)*diffratio*prandtl   &
@@ -2632,26 +2632,26 @@
          myj(1,2) = 3*myx(2)*myx(2) + 2*a_2*myx(2) + a_1
          myj(2,1) = 4*myx(1)*myterm*myx(2) + 12.*myx1_3*diffratio*prandtl
          myj(2,2) = 2*b_2*myx(2) + b_1
- 
+
          return
-         end subroutine thermohaline_rhs               
+         end subroutine thermohaline_rhs
 
          subroutine analytical_estimate_th(maxl,lambdamax,r_th,prandtl,diffratio)
          !Inputs analytical estimates for l and lambda from Brown et al. 2013.
 
          real(dp) :: prandtl, diffratio, maxl, lambdamax, r_th, phi, maxl4, maxl6
-         
+         !write(*,*) 'subroutine analytical mlt_info'
          phi = diffratio/prandtl
 
          if(r_th .lt. 0.5) then
             if(r_th .gt. prandtl) then
-               maxl = pow_cr((1./(1.+phi)) - 2.*dsqrt(r_th*phi)/pow_cr(1.+phi,2.5d0),0.25d0)   
+               maxl = pow_cr((1./(1.+phi)) - 2.*dsqrt(r_th*phi)/pow_cr(1.+phi,2.5d0),0.25d0)
                   ! Equation (B14)
                maxl4 = maxl*maxl*maxl*maxl
                maxl6 = maxl4*maxl*maxl
                lambdamax = 2*prandtl*phi*maxl6/(1.-(1.+phi)*maxl4)    ! Equation (B11)
             else
-               maxl = dsqrt(dsqrt(1./(1.+phi)) - dsqrt(prandtl)*(1.+phi/((1.+phi)*(1.+phi))))  
+               maxl = dsqrt(dsqrt(1./(1.+phi)) - dsqrt(prandtl)*(1.+phi/((1.+phi)*(1.+phi))))
                   ! Equation (B5)
                lambdamax = dsqrt(prandtl) - prandtl*dsqrt(1.+phi)   !Equation (B5)
             endif
@@ -2666,13 +2666,13 @@
             maxl = 0.5d0
             lambdamax = 0.5d0
          endif
-         
+
          return
          end subroutine analytical_estimate_th
 
          subroutine NR(xrk,prandtl,diffratio,R0,ierr)
          ! Newton Relaxation routine used to solve cubic & quadratic in thermohaline case.
-         ! Written by P. Garaud (2013). Please email pgaraud@ucsc.edu for troubleshooting. 
+         ! Written by P. Garaud (2013). Please email pgaraud@ucsc.edu for troubleshooting.
 
          real(dp), parameter :: acy = 1.d-13 ! accuracy of NR solution.
          integer, parameter :: niter = 20  ! max number of iterations allowed before giving up.
@@ -2685,7 +2685,7 @@
                ldx = n
 
          integer :: iter,ierr
-         real(dp) :: xrk(2), f(2) ! Functions f 
+         real(dp) :: xrk(2), f(2) ! Functions f
          real(dp) :: j(2,2) ! Jacobian
          real(dp) :: err,errold ! Error at each iteration
          real(dp) :: x1_sav,x2_sav
@@ -2700,7 +2700,7 @@
          !Initialize flags and other counters.
          ierr = 0
          iter = 0
-         err = 0d0
+         err = 0d0!acy*10!0d0
          errold = 0d0
          !Save input guess (probably not necessary here but useful in other routines)
          x1_sav = xrk(1)
@@ -2708,12 +2708,13 @@
 
          !While error is too large .and. decreasing, iterate.
          do while ((err.gt.acy).and.(ierr.eq.0).and.(iter.lt.niter))
-            call thermohaline_rhs(xrk,f,j,prandtl,diffratio,R0)    
-            
+            write(*,*) 'NR loop: iter:',iter
+            call thermohaline_rhs(xrk,f,j,prandtl,diffratio,R0)
+
             fact = 'E'
             trans = 'N'
             equed = ''
-               
+
             A  = j
             B(1,1) = f(1)
             B(2,1) = f(2)
@@ -2721,7 +2722,7 @@
             call dgesvx( fact, trans, n, nrhs, A, lda, AF, ldaf, ipiv, &
                equed, r, c, B, ldb, x, ldx, rcond, ferr, berr, &
                work, iwork, ierr )
- 
+
             if (ierr /= 0) then
                !write(*,*) 'dgesvx failed in thermohaline routine', iter
                !write(*,2) j(1,1),j(1,2)
@@ -2733,23 +2734,23 @@
                err = dsqrt(f(1)*f(1)+f(2)*f(2)) ! Calculate the new error
                ! If, after a while, the error is still not decreasing, give up and exit NR.
                ! Otherwise, continue.
-               if((iter.gt.5).and.(err.gt.errold)) then              
+               if((iter.gt.5).and.(err.gt.errold)) then
                   ! Write(*,2) 'Error not decreasing at iter', iter, err, errold
                   ierr = 1
                   ! Reset xs and exit loop.
                   xrk(1) = x1_sav
-                  xrk(2) = x2_sav                   
+                  xrk(2) = x2_sav
                else
-                  xrk = xrk - f ! The solution is now in f, so update x 
+                  xrk = xrk - f ! The solution is now in f, so update x
                   errold = err
                endif
             endif
          enddo
-            
-         !if(iter.eq.niter) write(*,2) 'Failed to converge'
+         !write(*,*) ''
+         if(iter.eq.niter) write(*,*) 'Failed to converge'
          return
          end subroutine NR
-         
+
          subroutine set_convective_mixing
             ! need to set gradT, d_gradT_dvb, conv_vel, d_conv_vel_dvb
             include 'formats.dek'
@@ -2758,10 +2759,10 @@
             real(dp), dimension(nvbs) :: &
                dA_0_dvb, dA_1_dvb, dA_2_dvb, dA_numerator_dvb, dA_denom_dvb, &
                d_inv_sqrt_x_dvb
-            
+
             real(qp) :: q1, q2, q3
             real(qp), dimension(nvbs) :: qd_dvb1, qd_dvb2, qd_dvb3
-            
+
             real(dp), parameter :: two_13 = 1.2599210498948730d0 ! = pow_cr(2d0,1d0/3d0)
             real(dp), parameter :: four_13 = 1.5874010519681994d0 ! = pow_cr(4d0,1d0/3d0)
 
@@ -2776,14 +2777,14 @@
 ! for the 'Henyey' case they are set based on the value of Henyey_y_param. The f1..f4 parameters
 ! have been renamed with a double ff, i.e., ff1..ff4, to avoid a collision of variable names with
 ! f1 in the cubic root solver.
-            
+
             quit = .false.
 
             x = Q*Rho / (2*P)
             d_x_dvb = x*(drho_dvb/rho + dQ_dvb/Q - dP_dvb/P)
-         
+
             convective_conductivity = Cp*grav*Lambda*Lambda*Rho*(sqrt(x)) / 9 ! erg / (K cm sec)
-            
+
             if (convective_conductivity < 0) then
                ierr = -1
                return
@@ -2795,7 +2796,7 @@
                write(*,1) 'x', x
                stop 'mlt'
             end if
-            
+
             if (debug) write(*,1) 'convective_conductivity', convective_conductivity
             d_cc_dvb = convective_conductivity* &
                  (d_Cp_dvb/Cp + d_grav_dvb/grav + &
@@ -2811,7 +2812,7 @@
 
                if (debug) write(*,1) 'A', A
                dA_dvb = (d_cc_dvb - d_rc_dvb*A) / radiative_conductivity
-               
+
                if (A < 0 .or. is_bad(A)) then
                   write(*,*) "MLT_option == 'Cox'", MLT_option == 'Cox'
                   write(*,1) 'A', A
@@ -2821,7 +2822,7 @@
                end if
 
             else
-            
+
                select case(trim(MLT_option))
                case ('Henyey')
                   ff1=1./Henyey_nu_param
@@ -2850,7 +2851,7 @@
                   write(*,*)
                   return
                end select
-            
+
                omega = Lambda*Rho*opacity !dimensionless
                d_omega_dvb = omega*( d_Lambda_dvb/Lambda + dRho_dvb/Rho + d_opacity_dvb/opacity)
 
@@ -2867,13 +2868,13 @@
                d_a0_dvb = 0d0
 
                ! A = sqrt(P*Q*rho/Henyey_nu_param)*(Cp*mixing_length_alpha)/
-               !        (2*crad*clight*T**3*theta)               
+               !        (2*crad*clight*T**3*theta)
                A_0 = sqrt(ff1*P*Q*rho)
                dA_0_dvb = ff1*(dP_dvb*Q*rho + P*dQ_dvb*rho + P*Q*drho_dvb)/(2*A_0)
-               
+
                A_1 = 4*A_0*Cp
                dA_1_dvb = 4*(dA_0_dvb*Cp + A_0*d_Cp_dvb)
-               
+
                A_2 = mixing_length_alpha*omega*(1.+ff4/(omega*omega))
                dA_2_dvb = mixing_length_alpha*(1-ff4/(omega*omega))*d_omega_dvb
 
@@ -2883,7 +2884,7 @@
                   stop 'MLT'
                   return
                end if
-               
+
                A_numerator = A_1*A_2
                dA_numerator_dvb = dA_1_dvb*A_2 + A_1*dA_2_dvb
 
@@ -2893,11 +2894,11 @@
                   write(*,1) 'dA_numerator_dvb(mlt_dlnT00)', dA_numerator_dvb(mlt_dlnT00)
                   stop 'MLT'
                end if
-                     
+
                A_denom = ff3*crad*clight*T*T*T
                dA_denom_dvb = A_denom*3*dT_dvb/T
-               
-               A = A_numerator/A_denom                     
+
+               A = A_numerator/A_denom
                dA_dvb = dA_numerator_dvb/A_denom - A_numerator*dA_denom_dvb/(A_denom*A_denom)
 
                if (is_bad(dA_dvb(mlt_dlnT00))) then
@@ -2906,7 +2907,7 @@
                   write(*,1) 'dA_dvb(mlt_dlnT00)', dA_dvb(mlt_dlnT00)
                   stop 'MLT'
                end if
-               
+
                if (A < 0) then
                   ierr = -1
                   return
@@ -2918,11 +2919,11 @@
                   write(*,1) 'A_0', A_0
                   stop 'mlt'
                end if
-            
+
             end if
 
             ! 'B' param  C&G 14.81
-            Bcubed = (A*A / a0)*diff_grads         
+            Bcubed = (A*A / a0)*diff_grads
             d_Bcubed_dvb = (A*A / a0)*d_diff_grads_dvb + (2*A*dA_dvb / a0)*diff_grads &
                - Bcubed*d_a0_dvb/a0
 
@@ -2940,20 +2941,20 @@
                stop 'MLT'
 !$omp end critical
             end if
-         
+
             if (debug) write(*,1) 'Bcubed', Bcubed
 
             ! now solve cubic equation for convective efficiency, Gamma
-            ! a0*Gamma^3 + Gamma^2 + Gamma - a0*Bcubed == 0   C&G 14.82, 
+            ! a0*Gamma^3 + Gamma^2 + Gamma - a0*Bcubed == 0   C&G 14.82,
             ! rewritten in terms of Gamma
             ! leave it to Mathematica to find an expression for the root we want (with a0 = 9/4)
-         
+
             delta = a0*Bcubed
             d_delta_dvb = a0*d_Bcubed_dvb + Bcubed*d_a0_dvb
-         
+
             if (debug) write(*,1) 'a0', a0
             if (debug) write(*,1) 'delta', delta
-      
+
             f = -2 + 9*a0 + 27*a0*a0*delta
             if (debug) write(*,1) 'f', f
             if (f > 1d100) then
@@ -2965,17 +2966,17 @@
                   f0 = f
                   d_f0_dvb = 27*a0*a0*d_delta_dvb + (9+54*a0*delta)*d_a0_dvb
                else
-                  f0 = sqrt(f0)         
+                  f0 = sqrt(f0)
                   !d_f0_dvb = (f*(27*a0*a0*d_delta_dvb + (9+54*a0*delta)*d_a0_dvb) &
                   !   + 18*(-1 + 3*a0)*(-1 + 3*a0)*d_a0_dvb)/f0!27*a0*a0*f*d_delta_dvb / f0
                   d_f0_dvb = 27*a0*a0*f*d_delta_dvb / f0 &
                      + (f*(9+54*a0*delta)+ 18*(-1 + 3*a0)*(-1 + 3*a0))*d_a0_dvb/f0
                end if
             end if
-         
+
             if (debug) write(*,1) 'f0', f0
 
-            f1 = -2 + 9*a0 + 27*a0*a0*delta + f0  
+            f1 = -2 + 9*a0 + 27*a0*a0*delta + f0
 
             if (is_bad(f1)) then
                ierr = -1
@@ -2987,16 +2988,16 @@
                write(*,1) 'f0', f0
                stop 'MLT: bad f1'
 !$omp end critical
-            end if   
+            end if
 
             if (f1 < 0) then
                call set_no_mixing
                call time_limit_conv_vel
                return
-            end if   
-            f1 = pow_cr(f1,one_third)     
+            end if
+            f1 = pow_cr(f1,one_third)
             d_f1_dvb = (27*a0*a0*d_delta_dvb + (9+54*a0*delta)*d_a0_dvb + d_f0_dvb) / (3*f1*f1)
-            f2 = 2*two_13*(1 - 3*a0) / f1       
+            f2 = 2*two_13*(1 - 3*a0) / f1
             d_f2_dvb = -f2*d_f1_dvb / f1 - 6*two_13*d_a0_dvb / f1
 
             Gamma = (four_13*f1 + f2 - 2) / (6*a0)
@@ -3024,7 +3025,7 @@
                call time_limit_conv_vel
                return
             end if
-            
+
             ! average convection velocity, vbar   C&G 14.86b
             ! vbar = vsound*Sqrt(Q)*alpha*Gamma / (2*Sqrt(2*Gamma1)*A)
             ! vsound = Sqrt(Gamma1*P / rho), so
@@ -3041,37 +3042,37 @@
                  (-2*dA_dvb/A + 2*d_Gamma_dvb/Gamma + &
                  dP_dvb/P + dQ_dvb/Q - drho_dvb/rho)
             end if
-            
-            
+
+
 
             if (test_partials) then
                ss% hydro_test_partials_val = conv_vel
                ss% hydro_test_partials_var = ss% i_lum
                ss% hydro_test_partials_dval_dx = d_conv_vel_dvb(mlt_dL)
             end if
-            
-            
-            
+
+
+
 
             conv_tau = 1d99
             call time_limit_conv_vel
-            
+
             if (init_conv_vel /= conv_vel .or. conv_vel == max_conv_vel) then
                ! need to recalculate Gamma to match modified conv_vel
                if (A <= 1d-99 .or. sqrt_x <= 1d-99) then
                   Gamma = 1d25
                   d_Gamma_dvb = 0
                   if (dbg) write(*,1) 'A or sqrt_x too small', A, sqrt_x
-               else      
+               else
                   if (dbg) write(*,*) 'recalculate Gamma to match modified conv_vel'
                   inv_sqrt_x = 1d0/sqrt_x
                   d_inv_sqrt_x_dvb = &
                      (Q*P*drho_dvb/rho - Q*dP_dvb - P*dQ_dvb)/(16d0*x*sqrt_x*rho)
-                  Gamma = conv_vel*A*inv_sqrt_x/mixing_length_alpha  
+                  Gamma = conv_vel*A*inv_sqrt_x/mixing_length_alpha
                   !d_Gamma_dvb = ( &
                   !   d_conv_vel_dvb*A*inv_sqrt_x + &
                   !   conv_vel*dA_dvb*inv_sqrt_x + &
-                  !   conv_vel*A*d_inv_sqrt_x_dvb)/mixing_length_alpha  
+                  !   conv_vel*A*d_inv_sqrt_x_dvb)/mixing_length_alpha
                   ! the "correct" form breaks edep in example_ccsn_IIp.
                   d_Gamma_dvb = 0d0
                end if
@@ -3081,7 +3082,7 @@
                write(*,1) 'prev/init init/final conv_vel', &
                   prev_conv_vel/init_conv_vel, &
                   prev_conv_vel, init_conv_vel, conv_vel
-            
+
             if (debug) write(*,1) 'conv_vel', conv_vel
             if (conv_vel < 0) then
                ierr = -1
@@ -3095,7 +3096,7 @@
                stop 'MLT: set_convective_mixing'
 !$omp end critical
             end if
-            
+
             Zeta = Gamma*Gamma*Gamma/Bcubed  ! C&G 14.80
             d_Zeta_dvb = (3d0*Gamma*Gamma*d_Gamma_dvb - d_Bcubed_dvb*Zeta)/Bcubed
 
@@ -3107,7 +3108,7 @@
 
             !write(*,*) "Compare Zeta", kz, log10_cr(T), Zeta, &
             !   a0*Gamma*Gamma/(1+Gamma*(1+a0*Gamma)) ! C&G, eq. (14.78)
-            
+
             ! Zeta must be >= 0 and < 1
             if (Zeta < 0d0) then
                Zeta = 0
@@ -3116,7 +3117,7 @@
                Zeta = 1d0
                d_Zeta_dvb = 0
             end if
-            
+
             !gradT = (1d0 - Zeta)*gradr + Zeta*gradL ! C&G 14.79 with gradL for grada
             !d_gradT_dvb = (1d0 - Zeta)*d_gradr_dvb + Zeta*d_gradL_dvb + &
             !            (gradL - gradr)*d_Zeta_dvb
@@ -3129,8 +3130,8 @@
                quit = .true.
                return
             end if
-         
-         end subroutine set_convective_mixing   
+
+         end subroutine set_convective_mixing
 
          subroutine set_semiconvection ! Langer 1983 & 1985
             real(dp) :: alpha, bc, LG, &
@@ -3140,7 +3141,7 @@
                d_bc_dvb, d_LG_dvb, d_a0_dvb, d_a1_dvb, d_a2_dvb, d_a3_dvb, d_a4_dvb, &
                d_a5_dvb, d_a6_dvb, d_a_dvb, d_b1_dvb, d_b2_dvb, d_b3_dvb, d_b4_dvb, &
                d_b5_dvb, d_b6_dvb, d_b7_dvb, d_b_dvb, d_div_dvb
-            
+
             include 'formats.dek'
             if (dbg) write(*,*) 'check for semiconvection'
             call set_no_mixing ! sets gradT = gradr
@@ -3159,7 +3160,7 @@
                return
             end if
             d_D_semi_dvb = 0 ! not used, so skip for now.
-            conv_vel = 3*D_semi/Lambda 
+            conv_vel = 3*D_semi/Lambda
             d_conv_vel_dvb = 0
             call time_limit_conv_vel
             if (conv_vel > max_conv_vel) conv_vel = max_conv_vel
@@ -3168,10 +3169,10 @@
                call set_no_mixing
                return
             end if
-            
+
             mixing_type = semiconvective_mixing
             if (dbg) write(*,2) 'mixing_type', mixing_type
-            
+
             if (semiconvection_option == 'Langer_85 mixing; gradT = gradr') return
             if (semiconvection_option /= 'Langer_85') then
                write(*,*) 'MLT: unknown values for semiconvection_option ' // &
@@ -3179,84 +3180,84 @@
                ierr = -1
                return
             end if
-            
-            
+
+
 !            Solve[{
-!                  L/Lrad - Lsc/Lrad - 1 == 0, 
-!                  Lrad == grad LG, 
+!                  L/Lrad - Lsc/Lrad - 1 == 0,
+!                  Lrad == grad LG,
 !                  gradMu == (4 - 3*beta)/beta*gradL_composition_term,
 !                  Lsc/Lrad == alpha (grad - gradA)/(2 grad (gradL - grad))
-!                              (grad - gradA - (beta (8 - 3 beta))/bc gradMu)}, 
+!                              (grad - gradA - (beta (8 - 3 beta))/bc gradMu)},
 !                  grad, {Lsc, Lrad, gradMu}] // Simplify
-                  
+
             alpha = min(1d0, alpha_semiconvection)
 
             bc = 32 - 24*beta - beta*beta
             d_bc_dvb = - 24*d_beta_dvb - 2*d_beta_dvb*beta
-            
+
             LG = (16d0/3d0*pi*clight*m*cgrav*crad*T*T*T*T)/(P*opacity)
             d_LG_dvb = LG*(4d0*dT_dvb/T - dP_dvb/P - d_opacity_dvb/opacity)
-            
+
             a0 = alpha*gradL_composition_term*LG
             d_a0_dvb = alpha*gradL_composition_term*d_LG_dvb
-            
+
             a1 = -2*bc*L
             d_a1_dvb = -2*L*d_bc_dvb
             d_a1_dvb(mlt_dL) = d_a1_dvb(mlt_dL) - 2*bc
-            
+
             a2 = 2*alpha*bc*grada*LG
             d_a2_dvb = 2*alpha*(d_bc_dvb*grada*LG + bc*d_grada_dvb*LG + bc*grada*d_LG_dvb)
-            
+
             a3 = -2*bc*gradL*LG
             d_a3_dvb = -2*(d_bc_dvb*gradL*LG + bc*d_gradL_dvb*LG + bc*gradL*d_LG_dvb)
-            
+
             a4 = 32*a0
             d_a4_dvb = 32*d_a0_dvb
-            
+
             a5 = -36*beta*a0
             d_a5_dvb = -36*(d_beta_dvb*a0 + beta*d_a0_dvb)
-            
+
             a6 = 9*beta*beta*a0
             d_a6_dvb = 9*(2*beta*d_beta_dvb*a0 + beta*beta*d_a0_dvb)
-            
+
             a = a1 + a2 + a3 + a4 + a5 + a6
-            d_a_dvb = d_a1_dvb + d_a2_dvb + d_a3_dvb + d_a4_dvb + d_a5_dvb + d_a6_dvb 
-                           
+            d_a_dvb = d_a1_dvb + d_a2_dvb + d_a3_dvb + d_a4_dvb + d_a5_dvb + d_a6_dvb
+
             b1 = 32 - 36*beta + 9*beta*beta
             d_b1_dvb = - 36*d_beta_dvb + 18*beta*d_beta_dvb
-            
+
             b2 = b1*a0
             d_b2_dvb = d_b1_dvb*a0 + b1*d_a0_dvb
-            
+
             b3 = -2*gradL*L + alpha*grada*grada*LG
             d_b3_dvb = -2*d_gradL_dvb*L + alpha*(2*grada*d_grada_dvb*LG + grada*grada*d_LG_dvb)
             d_b3_dvb(mlt_dL) = d_b3_dvb(mlt_dL) - 2*gradL
-            
+
             b4 = (-alpha*gradA + gradL)*LG
             d_b4_dvb = (-alpha*d_grada_dvb + d_gradL_dvb)*LG + (-alpha*gradA + gradL)*d_LG_dvb
-            
+
             b5 = -b2 + 2*bc*(L + b4)
             d_b5_dvb = -d_b2_dvb + 2*d_bc_dvb*(L + b4) + 2*bc*d_b4_dvb
             d_b5_dvb(mlt_dL) = d_b5_dvb(mlt_dL) + 2*bc
-            
+
             b6 = b2*grada + bc*b3
             d_b6_dvb = d_b2_dvb*grada + b2*d_grada_dvb + d_bc_dvb*b3 + bc*d_b3_dvb
-            
+
             b7 = -4*(-2 + alpha)*bc*LG*b6
             d_b7_dvb = -4*(-2 + alpha)*(d_bc_dvb*LG*b6 + bc*d_LG_dvb*b6 + bc*LG*d_b6_dvb)
-            
+
             b = b7 + b5*b5
             d_b_dvb = d_b7_dvb + 2*b5*d_b5_dvb
-            
+
             div = 2*(-2 + alpha)*bc*LG
             d_div_dvb = 2*(-2 + alpha)*(d_bc_dvb*LG + bc*d_LG_dvb)
 
             bsq = sqrt(b)
             gradT = (a + bsq)/div
             d_gradT_dvb = -gradT*d_div_dvb/div + d_a_dvb/div + 0.5d0*d_b_dvb/(div*bsq)
-            
+
          end subroutine set_semiconvection
-                  
+
          subroutine set_no_mixing
             ! assumes have set gradr, scale_height, gradL, and Lambda.
             mixing_type = no_mixing
@@ -3276,26 +3277,26 @@
             d_Gamma_dvb = 0
             unsmoothed_gradT = 0
             d_unsmoothed_gradT_dvb = 0
-         end subroutine set_no_mixing         
-         
+         end subroutine set_no_mixing
+
          subroutine show_args
  1          format(a30,1pe26.16)
-            
+
             write(*,1) 'cgrav = ', cgrav
             write(*,1) 'm = ', m
-            write(*,1) 'r = ', r 
-            write(*,1) 'T = ', T 
-            write(*,1) 'Rho = ', Rho 
-            write(*,1) 'L  = ', L 
+            write(*,1) 'r = ', r
+            write(*,1) 'T = ', T
+            write(*,1) 'Rho = ', Rho
+            write(*,1) 'L  = ', L
             write(*,1) 'P = ', P
-            write(*,1) 'chiRho = ', chiRho 
+            write(*,1) 'chiRho = ', chiRho
             write(*,1) 'chiT = ', chiT
-            write(*,1) 'Cp = ', Cp 
+            write(*,1) 'Cp = ', Cp
             write(*,1) 'xh = ', xh
-            write(*,1) 'opacity = ', opacity 
+            write(*,1) 'opacity = ', opacity
             write(*,1) 'grada = ', grada
             write(*,1) 'mixing_length_alpha = ', mixing_length_alpha
-            
+
          end subroutine show_args
 
 
@@ -3318,7 +3319,7 @@
                 ss% lnT_start(kz)/ln10 < ss% min_logT_for_321x_dconv_vel_dt) then
                return
             end if
-            
+
             if (ss% use_321x_dconv_vel_dt_equation) then
                cv_var = ss% conv_vel(kz)
                d_cv_var_dvb = 0
@@ -3333,7 +3334,7 @@
                !d_cv_var_dvb = 0
                !d_cv_var_dvb(mlt_cv_var) = ss% conv_vel(kz)+ss% conv_vel_v0
             end if
-            
+
             d_D_dvb(mlt_cv_var) = 0d0
             d_gradT_dvb(mlt_cv_var) = 0d0
 
@@ -3343,9 +3344,9 @@
 
             x = Q*Rho / (2d0*P) ! using x as a temporary variable here
             d_x_dvb = x*(drho_dvb/rho + dQ_dvb/Q - dP_dvb/P)
-         
+
             convective_conductivity = Cp*grav*Lambda*Lambda*Rho*(sqrt(x)) / 9 ! erg / (K cm sec)
-            
+
             if (convective_conductivity < 0) then
                ierr = -1
                if (ss% report_ierr) then
@@ -3360,7 +3361,7 @@
                   return
                end if
             end if
-            
+
             if (debug) write(*,1) 'convective_conductivity', convective_conductivity
             d_cc_dvb = convective_conductivity* &
                  (d_Cp_dvb/Cp + d_grav_dvb/grav + &
@@ -3376,7 +3377,7 @@
 
                if (debug) write(*,1) 'A', A
                dA_dvb = (d_cc_dvb - d_rc_dvb*A) / radiative_conductivity
-               
+
                if (A < 0 .or. is_bad(A)) then
                   ierr = -1
                   if (ss% report_ierr) then
@@ -3391,7 +3392,7 @@
                end if
 
             else
-            
+
                select case(trim(MLT_option))
                case ('Henyey')
                   ff1=1d0/Henyey_nu_param
@@ -3420,7 +3421,7 @@
                   write(*,*)
                   return
                end select
-            
+
                omega = Lambda*Rho*opacity !dimensionless
                d_omega_dvb = omega*( d_Lambda_dvb/Lambda + dRho_dvb/Rho + d_opacity_dvb/opacity)
 
@@ -3435,13 +3436,13 @@
                d_a0_dvb = a0*2d0*ff4*d_omega_dvb/(ff4 + omega*omega)/omega
 
                ! A = sqrt(P*Q*rho/Henyey_nu_param)*(Cp*mixing_length_alpha)/
-               !        (2*crad*clight*T**3*theta)               
+               !        (2*crad*clight*T**3*theta)
                A_0 = sqrt(ff1*P*Q*rho)
                dA_0_dvb = ff1*(dP_dvb*Q*rho + P*dQ_dvb*rho + P*Q*drho_dvb)/(2*A_0)
-               
+
                A_1 = 4d0*A_0*Cp
                dA_1_dvb = 4d0*(dA_0_dvb*Cp + A_0*d_Cp_dvb)
-               
+
                A_2 = mixing_length_alpha*omega*(1d0+ff4/(omega*omega))
                dA_2_dvb = mixing_length_alpha*(1d0-ff4/(omega*omega))*d_omega_dvb
 
@@ -3454,7 +3455,7 @@
                      return
                   end if
                end if
-               
+
                A_numerator = A_1*A_2
                dA_numerator_dvb = dA_1_dvb*A_2 + A_1*dA_2_dvb
 
@@ -3467,11 +3468,11 @@
                      return
                   end if
                end if
-                     
+
                A_denom = ff3*crad*clight*T*T*T
                dA_denom_dvb = A_denom*3d0*dT_dvb/T
-               
-               A = A_numerator/A_denom                     
+
+               A = A_numerator/A_denom
                dA_dvb = dA_numerator_dvb/A_denom - A_numerator*dA_denom_dvb/(A_denom*A_denom)
 
                if (is_bad(dA_dvb(mlt_dlnT00))) then
@@ -3483,7 +3484,7 @@
                      return
                   end if
                end if
-               
+
                if (A < 0) then
                   ierr = -1
                   if (ss% report_ierr) then
@@ -3498,7 +3499,7 @@
                      return
                   end if
                end if
-            
+
             end if
 
             ! average convection velocity, vbar   C&G 14.86b
@@ -3510,13 +3511,13 @@
 
             x = Q*P / (8d0*rho) ! using x as a temporary variable here
             sqrt_x = sqrt(x)
-            
+
             if (A <= 1d-99 .or. sqrt_x <= 1d-99) then
                Gamma = 1d25
                d_Gamma_dvb = 0
                !if (dbg) &
                   write(*,2) 'mlt: A or sqrt_x too small', kz, A, sqrt_x
-            else      
+            else
                if (dbg) write(*,*) 'calculate Gamma using cv_var'
                inv_sqrt_x = 1d0/sqrt_x
                d_inv_sqrt_x_dvb = &
@@ -3528,20 +3529,20 @@
                   write(*,2) 'old d_Gamma_dvb(mlt_dL)', kz, d_Gamma_dvb(mlt_dL)
                   write(*,2) 'old d_Gamma_dvb(mlt_dlnR)', kz, d_Gamma_dvb(mlt_dlnR)
                end if
-               Gamma = cv_var*A*inv_sqrt_x/mixing_length_alpha  
+               Gamma = cv_var*A*inv_sqrt_x/mixing_length_alpha
                d_Gamma_dvb = ( &
                   d_cv_var_dvb*A*inv_sqrt_x + &
                   cv_var*dA_dvb*inv_sqrt_x + &
-                  cv_var*A*d_inv_sqrt_x_dvb)/mixing_length_alpha  
+                  cv_var*A*d_inv_sqrt_x_dvb)/mixing_length_alpha
                if (.false.) then
                   write(*,2) 'new d_Gamma_dvb(mlt_dL)', kz, d_Gamma_dvb(mlt_dL)
                   write(*,2) 'new d_Gamma_dvb(mlt_dlnR)', kz, d_Gamma_dvb(mlt_dlnR)
                end if
             end if
 
-            
+
             if (.true.) then
-            
+
                ! C&G, eq. (14.78), but rewritten in a way that prevents
                ! the multiplication of terms that go as ~Gamma. This is because
                ! Gamma can be very large, and Gamma^2 can actually overflow and
@@ -3551,9 +3552,9 @@
                d_Zeta_dvb =d_Gamma_dvb*(((a0*Gamma/(Gamma+1d0))*tmp)&
                   *((Gamma+2d0)/(Gamma+1d0)*tmp)) + &
                   d_a0_dvb*((Gamma/(Gamma+1))*(Gamma*tmp)*tmp)
-            
+
             else if (.false.) then ! quad precision
-            
+
                q1 = Gamma
                dq1_dvb = d_Gamma_dvb
                q2 = a0
@@ -3562,7 +3563,7 @@
                   +(2*q1*q1*q1+2*q1*q1)*q2+q1*q1+2*q1+1))
                Zeta = q3
                d_Zeta_dvb = dq3_dvb
-               
+
             else
 
                Zeta = a0*Gamma*Gamma/(1+Gamma*(1+a0*Gamma)) ! C&G, eq. (14.78)
@@ -3573,11 +3574,11 @@
 
             ! TESTING
             ! 'B' param  C&G 14.81
-            !Bcubed = (A*A / a0)*diff_grads         
+            !Bcubed = (A*A / a0)*diff_grads
             !d_Bcubed_dvb = (A*A / a0)*d_diff_grads_dvb + (2*A*dA_dvb / a0)*diff_grads
             !Zeta = Gamma*Gamma*Gamma/Bcubed  ! C&G 14.80
             !d_Zeta_dvb = (3d0*Gamma*Gamma*d_Gamma_dvb - d_Bcubed_dvb*Zeta)/Bcubed
-            
+
             !if (kz == 33) then
             if (.false.) then
                write(*,2) 'cv_var', kz, cv_var
@@ -3593,9 +3594,9 @@
                write(*,2) 'ss% r(kz)', kz, ss% r(kz)
                write(*,*)
             end if
-            
+
             save_gradT = gradT
-            d_save_dvb = d_gradT_dvb        
+            d_save_dvb = d_gradT_dvb
 
             !gradT = (1d0 - Zeta)*gradr + Zeta*gradL ! C&G 14.79 with gradL for grada
             !d_gradT_dvb = (1d0 - Zeta)*d_gradr_dvb + Zeta*d_gradL_dvb + &
@@ -3603,7 +3604,7 @@
             gradT = (1d0 - Zeta)*gradr + Zeta*grada ! C&G 14.79
             d_gradT_dvb = (1d0 - Zeta)*d_gradr_dvb + Zeta*d_grada_dvb + &
                         (grada - gradr)*d_Zeta_dvb
-            
+
             if (.false. .and. Zeta > 0.45 .and. Zeta < 0.55) then
 !$OMP critical
                write(*,2) 'Zeta', kz, Zeta
@@ -3616,7 +3617,7 @@
                stop 'revise_using_cv_var_variable'
 !$OMP end critical
             end if
-                        
+
             if (is_bad(d_gradT_dvb(mlt_cv_var))) then
                ierr = -1
                if (ss% report_ierr) then
@@ -3636,7 +3637,7 @@
                   return
                end if
             end if
-         
+
          end subroutine revise_using_cv_var_variable
 
 
